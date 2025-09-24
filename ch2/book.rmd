@@ -1,0 +1,50 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r}
+dbinom(6, size=9, prob=0.5)
+dbinom(6, size=9, prob=0.7)
+?dbinom
+```
+
+```{r}
+# define grid
+p_grid<-seq(from=0,to=1,length.out=20)
+
+# define prior
+prior<-rep(1,20)
+
+# compute likelihood at each value in grid
+likelihood<-dbinom(6,size=9,prob=p_grid)
+
+# compute product of likelihood and prior
+unstd.posterior<-likelihood*prior
+
+# standardize the posterior, so it sums to 1
+posterior<-unstd.posterior/sum(unstd.posterior)
+```
+
+```{r}
+plot(p_grid, posterior, type="b", xlab="probability of water", ylab="posterior probability")
+mtext("20 points")
+```
+
+```{r}
+library(rethinking)  
+globe.qa <- quap( alist( W ~ dbinom( W+L ,p) , # binomial likelihood
+                         p ~ dunif(0,1) # uniform prior
+                         ), 
+                  data=list(W=6,L=3) )  # display summary of quadratic a
+precis( globe.qa )
+```
+
+```{r}
+# analytical calculation
+W<-6
+L<-3
+curve(dbeta(x,W+1,L+1),from=0,to=1)
+# quadratic approximation
+curve(dnorm(x,0.67,0.16),lty=2, add=TRUE)
+```
