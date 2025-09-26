@@ -1,0 +1,78 @@
+## Exercise1
+
+```{r}
+library(rethinking)
+data(Howell1)
+d<-Howell1
+d<-d2[d$age>=18,]
+
+xbar<-mean(d2$weight)
+
+model<-quap(
+  alist(
+    height~dnorm(mu,sigma),
+    mu<-a+b*(weight-xbar),
+    a~dnorm(178,20),
+    b~dlnorm(0,1),
+    sigma~dunif(0,50)
+  ),data=d2
+)
+precis(model)
+```
+
+```{r}
+sim.height<-sim(model, data=list(weight=c(46.95,43.72,64.78,32.59,54.63)))
+str(sim.height)
+```
+
+```{r}
+height.PI<-apply(sim.height,2,PI,prob=0.89)
+height.PI
+```
+
+```{r}
+height.mean<-apply(sim.height,2, mean)
+height.mean
+```
+
+## Exercise 2
+
+```{r}
+d3<-d[d$age<18,]
+str(d3)
+```
+
+```{r}
+xbar<-mean(d3$weight)
+
+model<-quap(
+  alist(
+    height~dnorm(mu,sigma),
+    mu<-a+b*(weight-xbar),
+    a~dnorm(178,20),
+    b~dlnorm(0,1),
+    sigma~dunif(0,50)
+  ),data=d3
+)
+precis(model)
+
+```
+
+```{r}
+plot(height~weight, d3,col=rangi2)
+post<-extract.samples(model)
+a_map=mean(post$a)
+b_map=mean(post$b)
+# MAP regression line
+curve(a_map+b_map*(x-xbar),add=TRUE)
+# 89% interval for the mean
+weight.seq=seq(from=0, to=50,by=1)
+mu<-link(model,data=data.frame(weight=weight.seq))
+mu.PI<-apply(mu,2,PI,prob=0.89)
+shade(mu.PI,weight.seq)
+
+# prediction intervals
+sim.height<-sim(model,data=list(weight=weight.seq))
+sim.PI<-apply(sim.height,2,PI,prob=0.89)
+shade(sim.PI,weight.seq)
+```
