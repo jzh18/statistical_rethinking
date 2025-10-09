@@ -1,0 +1,83 @@
+---
+title: "exercise"
+output: html_document
+---
+
+```{r}
+island_1=c(0.2,0.2,0.2,0.2,0.2)
+island_2=c(0.8,0.1,0.05,0.025,0.025)
+island_3=c(0.05,0.15,0.7,0.05,0.05)
+```
+
+```{r}
+cal_entropy<-function(probs){
+  -sum(probs*log(probs))
+}
+```
+
+```{r}
+cal_entropy(island_1)
+cal_entropy(island_2)
+cal_entropy(island_3)
+```
+
+Higher entropy means higher uncertainty.
+
+```{r}
+kl_divergence<-function(target, model){
+  sum(target*log(target/model))
+}
+```
+
+```{r}
+kl_divergence(island_1,island_2)
+kl_divergence(island_1,island_3)
+
+kl_divergence(island_2,island_1)
+kl_divergence(island_2,island_3)
+
+kl_divergence(island_3,island_1)
+kl_divergence(island_3,island_2)
+```
+
+island_1 predicts island_3 best. This is because in a model fitting context, if we use a distribution with high entropy to approximate an unknown true distribution of events, we will reduce the distance to the truth and therefore the error.
+
+In this example, when using island_1, where each bird likely exists, we wouldn't so surprised when we saw any birds existing in another island.
+
+## E2
+
+```{r}
+N<-100
+set.seed(909)
+height<-rnorm(N,10,2)
+leg_prop<-runif(N,0.4,0.5)
+leg_left<-leg_prop*height+rnorm(N,0,0.02)
+leg_right<-leg_prop*height+rnorm(N,0,0.02)
+
+d<-data.frame(height,leg_left,leg_right)
+
+```
+
+```{r}
+d2$mid <- d2$married + 1
+m6.9<-quap(
+  alist(
+    happiness ~ dnorm( mu , sigma ),
+    mu <- a[mid] + bA*A,
+    a[mid] ~ dnorm( 0 , 1 ),
+    bA ~ dnorm( 0 , 2 ),
+    sigma ~ dexp(1)
+  ),data=d2
+)
+
+m6.10<-quap(
+  alist(
+    happiness~dnorm(mu,sigma),
+    mu<-a+bA*A,
+    a~dnorm(0,1),
+    bA~dnorm(0,2),
+    sigma~dexp(1)
+  ),data=d2
+)
+precis(m6.10)
+```
